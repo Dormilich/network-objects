@@ -45,26 +45,26 @@ class IP implements IpInterface
             return inet_pton( $ip );
         }
         // 32bit or 128bit (binary) string
-        if ( preg_match( '/^(?:0b)?([01]{32}(?:[01]{96})?)$/', $input, $match ) ) {
+        if ( is_scalar( $input ) and preg_match( '/^(?:0b)?([01]{32}(?:[01]{96})?)$/', $input, $match ) ) {
             return $this->fromBin( $match[ 1 ] );
         }
         // 32bit or 128bit hex string
-        if ( preg_match( '/^(?:0x)?([0-9A-F]{8}(?:[0-9A-F]{24})?)$/i', $input, $match ) ) {
+        if ( is_scalar( $input ) and preg_match( '/^(?:0x)?([0-9A-F]{8}(?:[0-9A-F]{24})?)$/i', $input, $match ) ) {
             return pack( 'H*', $match[ 1 ] );
         }
         // < 32bit integer
         $options = [ 'options' => [ 'min_range' => 0, 'max_range' => ( 2 << 32 ) - 1 ] ];
         if ( $num = filter_var( $input , FILTER_VALIDATE_INT, $options ) ) {
-            return inet_pton( long2ip( $value ) );
+            return inet_pton( long2ip( $num ) );
         }
         // decimal string (might overflow)
         if ( ctype_digit( $input ) and strlen( $input ) < 40 ) {
             return $this->fromDec( $input );
         }
 
-        $value = is_scalar( $input ) ? $input . ' ' : '';
+        $value = is_scalar( $input ) ? sprintf( "'%s' ", $input ) : '';
         $type = is_object( $input ) ? get_class( $input ) : gettype( $input );
-        $msg = "Input {$value}of type [$type] could not be converted into an IPv4 object.";
+        $msg = "Input {$value}of type [$type] could not be converted into an IP object.";
 
         throw new \RuntimeException( $msg );
     }
@@ -106,6 +106,26 @@ class IP implements IpInterface
     }
 
     /**
+     * Helper function to get the number of bytes.
+     * 
+     * @return integer
+     */
+    private function octets()
+    {
+        return strlen( $this->in_addr );
+    }
+
+    /**
+     * Helper function to get the bytes.
+     * 
+     * @return integer[]
+     */
+    private function bytes()
+    {
+        return unpack( 'C*', $this->in_addr );
+    }
+
+    /**
      * Returns the textual representation of the IP address.
      * 
      * @return string
@@ -122,7 +142,7 @@ class IP implements IpInterface
      */
     public function getVersion()
     {
-        return strlen( $this->in_addr ) === 4 ? 4 : 6;
+        return $this->octets() === 4 ? 4 : 6;
     }
 
     /**
@@ -142,8 +162,10 @@ class IP implements IpInterface
      */
     public function toBin()
     {
-        return array_reduce( unpack( 'C*', $this->in_addr ), function ( $bin, $char ) {
-            return $bin . str_pad( decbin( $char ), 8, '0', STR_PAD_LEFT );
+        $bytes = $this->bytes();
+
+        return array_reduce( $bytes, function ( $bin, $int ) {
+            return $bin . str_pad( decbin( $int ), 8, '0', STR_PAD_LEFT );
         }, '' );
     }
 
@@ -152,12 +174,14 @@ class IP implements IpInterface
      * 
      * @return string
      */
-    protected function toDec()
+    public function toDec()
     {
-        $octets = strlen( $this->in_addr );
+        $octets = $this->octets();
+        $bytes = $this->bytes();
+        $dec = 0;
 
-        foreach ( unpack( 'C*', $this->in_addr ) as $char ) {
-            $dec = bcadd( $dec, bcmul( $char, bcpow( 256, --$octet ) ) );
+        foreach ( $bytes as $int ) {
+            $dec = bcadd( $dec, bcmul( $int, bcpow( 256, --$octets ) ) );
         }
 
         return $dec;
