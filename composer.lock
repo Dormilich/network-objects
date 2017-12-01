@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "a5e47dafabfb1ca839b8fb095f4983cb",
+    "content-hash": "67b4b28850e3daa2d166f132a583d170",
     "packages": [
         {
             "name": "dormilich/network-interfaces",

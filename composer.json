@@ -11,6 +11,10 @@
     ],
     "require": {
         "php": ">=5.6",
+        "ext-bcmath": "*",
+        "ext-ctype": "*",
+        "ext-filter": "*",
+        "ext-pcre": "*",
         "dormilich/network-interfaces": "^1.0.0"
     },
     "require-dev": {

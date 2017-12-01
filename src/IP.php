@@ -52,12 +52,11 @@ class IP implements IpInterface
         if ( is_scalar( $input ) and preg_match( '/^(?:0x)?([0-9A-F]{8}(?:[0-9A-F]{24})?)$/i', $input, $match ) ) {
             return pack( 'H*', $match[ 1 ] );
         }
-        // < 32bit integer
-        $options = [ 'options' => [ 'min_range' => 0, 'max_range' => ( 2 << 32 ) - 1 ] ];
-        if ( $num = filter_var( $input , FILTER_VALIDATE_INT, $options ) ) {
-            return inet_pton( long2ip( $num ) );
+        // 32bit integer
+        if ( is_int( $input ) and $input >= 0 and $input < ( 2 << 32 ) ) {
+            return inet_pton( long2ip( $input ) );
         }
-        // decimal string (might overflow)
+        // decimal string (stops after 128 bit)
         if ( ctype_digit( $input ) and strlen( $input ) < 40 ) {
             return $this->fromDec( $input );
         }
@@ -106,16 +105,6 @@ class IP implements IpInterface
     }
 
     /**
-     * Helper function to get the number of bytes.
-     * 
-     * @return integer
-     */
-    private function octets()
-    {
-        return strlen( $this->in_addr );
-    }
-
-    /**
      * Helper function to get the bytes.
      * 
      * @return integer[]
@@ -142,7 +131,7 @@ class IP implements IpInterface
      */
     public function getVersion()
     {
-        return $this->octets() === 4 ? 4 : 6;
+        return strlen( $this->in_addr ) === 4 ? 4 : 6;
     }
 
     /**
@@ -170,18 +159,25 @@ class IP implements IpInterface
     }
 
     /**
-     * The string representation in decimal format.
+     * The string representation in decimal format. IPv4 numbers are returned as 
+     * integers to be able to differentiate them from 32 bit IPv6 numbers 
+     * (e.g. `::1`).
      * 
-     * @return string
+     * @return string|integer
      */
     public function toDec()
     {
-        $octets = $this->octets();
+        // much faster than bcmath
+        if ( 4 === $this->getVersion() ) {
+            return ip2long( inet_ntop( $this->in_addr ) );
+        }
+
         $bytes = $this->bytes();
         $dec = 0;
 
-        foreach ( $bytes as $int ) {
-            $dec = bcadd( $dec, bcmul( $int, bcpow( 256, --$octets ) ) );
+        for ( $i = count( $bytes ); $i--; ) {
+            $int = array_shift( $bytes );
+            $dec = bcadd( $dec, bcmul( $int, bcpow( 256, $i ) ) );
         }
 
         return $dec;
