@@ -53,7 +53,7 @@ class IP implements IpInterface
             return pack( 'H*', $match[ 1 ] );
         }
         // 32bit integer
-        if ( is_int( $input ) and $input >= 0 and $input < ( 2 << 32 ) ) {
+        if ( is_int( $input ) and $input >= 0 and $input < ( 1 << 32 ) ) {
             return inet_pton( long2ip( $input ) );
         }
         // decimal string (stops after 128 bit)

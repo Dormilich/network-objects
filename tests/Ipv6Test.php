@@ -3,7 +3,7 @@
 use Dormilich\Http\IP;
 use PHPUnit\Framework\TestCase;
 
-class Ipv6Test extends TestCase
+class IPv6Test extends TestCase
 {
     private function ip()
     {

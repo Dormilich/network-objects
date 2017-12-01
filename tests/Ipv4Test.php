@@ -3,7 +3,7 @@
 use Dormilich\Http\IP;
 use PHPUnit\Framework\TestCase;
 
-class Ipv4Test extends TestCase
+class IPv4Test extends TestCase
 {
     private function ip()
     {

@@ -68,10 +68,8 @@ class IpSetupTest extends TestCase
 
     public function testLarge64bitIntNumConvertsToIPv6()
     {
-        $num = 2 << 40; 
-        $ip = new IP( $num );
+        $ip = new IP( 4294967297 ); // 2^32 + 1
 
-        $this->assertInternalType( 'integer', $num, 'not a 64bit PHP installation' );
         $this->assertSame( 6, $ip->getVersion() );
     }
 }
