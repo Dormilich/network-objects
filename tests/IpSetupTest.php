@@ -57,7 +57,7 @@ class IpSetupTest extends TestCase
     }
 
     /**
-     * @depends testIntNumConvertsToIPv4
+     * @depends test32bitIntNumConvertsToIPv4
      */
     public function testStringNumConvertsToIPv6()
     {
