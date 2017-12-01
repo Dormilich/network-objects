@@ -48,4 +48,30 @@ class IpSetupTest extends TestCase
     {
         new IP( -3.14 );
     }
+
+    public function test32bitIntNumConvertsToIPv4()
+    {
+        $ip = new IP( 197394567 );
+
+        $this->assertSame( 4, $ip->getVersion() );
+    }
+
+    /**
+     * @depends testIntNumConvertsToIPv4
+     */
+    public function testStringNumConvertsToIPv6()
+    {
+        $ip = new IP( '197394567' );
+
+        $this->assertSame( 6, $ip->getVersion() );
+    }
+
+    public function testLarge64bitIntNumConvertsToIPv6()
+    {
+        $num = 2 << 40; 
+        $ip = new IP( $num );
+
+        $this->assertInternalType( 'integer', $num, 'not a 64bit PHP installation' );
+        $this->assertSame( 6, $ip->getVersion() );
+    }
 }
