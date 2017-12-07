@@ -3,7 +3,7 @@
 use Dormilich\Http\IP;
 use PHPUnit\Framework\TestCase;
 
-class IpSetupTest extends TestCase
+class IpTest extends TestCase
 {
     public function testPaddedIPv4()
     {
@@ -71,5 +71,52 @@ class IpSetupTest extends TestCase
         $ip = new IP( 4294967297 ); // 2^32 + 1
 
         $this->assertSame( 6, $ip->getVersion() );
+    }
+
+    public function testIpEquals()
+    {
+        $ip = new IP( '192.168.65.174' );
+
+        $a  = new IP( '192.168.65.174' );
+        $b  = new IP( '192.168.65.147' );
+
+        $this->assertTrue(  $ip->is( $a ) );
+        $this->assertFalse( $ip->is( $b ) );
+    }
+
+    public function testIpGreaterThan()
+    {
+        $ip = new IP( '192.168.65.174' );
+
+        $a  = new IP( '192.168.65.174' );
+        $b  = new IP( '192.168.65.147' );
+
+        $this->assertFalse( $ip->gt( $a ) );
+        $this->assertTrue(  $ip->gt( $b ) );
+    }
+
+    public function testIpLessThan()
+    {
+        $ip = new IP( '192.168.65.147' );
+
+        $a  = new IP( '192.168.65.174' );
+        $b  = new IP( '192.168.65.147' );
+
+        $this->assertTrue(  $ip->lt( $a ) );
+        $this->assertFalse( $ip->lt( $b ) );
+    }
+
+    public function testNext()
+    {
+        $ip = new IP( '192.168.9.103' );
+
+        $this->assertSame( '192.168.9.104', (string) $ip->next() );
+    }
+
+    public function testPrev()
+    {
+        $ip = new IP( '192.168.9.0' );
+
+        $this->assertSame( '192.168.8.255', (string) $ip->prev() );
     }
 }

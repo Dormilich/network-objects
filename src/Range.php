@@ -186,9 +186,9 @@ class Range implements RangeInterface
     private function getLastNetworkIp( IpInterface $ip, $prefix )
     {
         $max = 8 * strlen( $ip->inAddr() );
-        $bin = str_pad( str_repeat( '1', $prefix ), $max, '0', STR_PAD_RIGHT );
+        $mask = str_pad( str_repeat( '1', $prefix ), $max, '0', STR_PAD_RIGHT );
 
-        $last = $ip->inAddr() | ~(new IP( $bin ))->inAddr();
+        $last = $ip->inAddr() | ~(new IP( $mask ))->inAddr();
 
         return new IP( inet_ntop( $last ) );
     }

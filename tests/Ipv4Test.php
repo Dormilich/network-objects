@@ -57,18 +57,4 @@ class IPv4Test extends TestCase
         $this->assertSame( '192.168.65.174', long2ip( hexdec( $hex ) ) );
         $this->assertSame( $ip->inAddr(), $test->inAddr() );
     }
-
-    public function testNext()
-    {
-        $ip = new IP( '192.168.9.103' );
-
-        $this->assertSame( '192.168.9.104', (string) $ip->next() );
-    }
-
-    public function testPrev()
-    {
-        $ip = new IP( '192.168.9.103' );
-
-        $this->assertSame( '192.168.9.102', (string) $ip->prev() );
-    }
 }

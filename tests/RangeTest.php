@@ -134,6 +134,14 @@ class RangeTest extends TestCase
         $this->assertSame( '192.168.49.0/29', (string) current( $networks ) );
     }
 
+    public function testGetSpanNetwork()
+    {
+        $range = new Range( '192.168.31.240 - 192.168.35.193' );
+        $span = $range->getSpanNetwork();
+
+        $this->assertSame( '192.168.0.0/18', (string) $span );
+    }
+
     /**
      * @dataProvider dataRangeContains
      */

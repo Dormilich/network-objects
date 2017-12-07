@@ -94,7 +94,36 @@ class NetworkTest extends TestCase
         new Network( '192.168.31.240 - 192.168.35.193' );
     }
 
-    public function getIPv4Hosts()
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage Prefix length 64 exceeds the maximum value of 32.
+     */
+    public function testCreateNetworkFromInvalidCidrFails()
+    {
+        new Network( '192.168.49.3/64' );
+    }
+
+    // since Network implements RangeInterface
+    public function testGetNetworks()
+    {
+        $net = new Network( '192.168.49.3/29' );
+        $list = $net->getNetworks();
+
+        $this->assertCount( 1, $list );
+        $this->assertSame( '192.168.49.0/29', (string) current( $list ) );
+    }
+
+    public function testGetHostsForPeerNetwork()
+    {
+        $net = new Network( '192.168.49.6/31' );
+        $hosts = $net->getHosts();
+
+        $this->assertSame( '1', $hosts->count() );
+        $this->assertSame( '192.168.49.7', (string) $hosts->getFirstIP() );
+        $this->assertSame( '192.168.49.7', (string) $hosts->getlastIP() );
+    }
+
+    public function testGetIPv4Hosts()
     {
         $net = new Network( '192.168.49.3/29' );
         $hosts = $net->getHosts();
@@ -105,7 +134,7 @@ class NetworkTest extends TestCase
         $this->assertSame( '192.168.49.6', (string) $hosts->getlastIP() );
     }
 
-    public function getIPv6Hosts()
+    public function testGetIPv6Hosts()
     {
         $net = new Network( '2001:db8:85a3:8d3::/64' );
         $hosts = $net->getHosts();
