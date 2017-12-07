@@ -51,8 +51,9 @@ class Range implements RangeInterface
             return $this->setIPs( trim( $first ), trim( $last ) );
         }
 
-        if ( is_string( $input ) and strpos( $input, '/' ) ) {
-            #
+        if ( is_string( $input ) and preg_match( '#^[0-9a-f:.]+/\d+$#i', $input ) ) {
+            $network = new Network( $input );
+            return $this->setIPs( $network->getFirstIP(), $network->getLastIP() );
         }
 
         $this->setIPs( $input, $input );
@@ -145,10 +146,93 @@ class Range implements RangeInterface
     /**
      * Get a list of networks that cover the IP range.
      * 
-     * @return NetworkInterface[]
+     * @return Network[]
      */
     public function getNetworks()
     {
-        return [];
+        $networks = [];
+        $spanPrefix = $this->getSpanPrefix();
+        $end = $this->last->inAddr();
+
+        $ip = $this->getFirstIP();
+
+        do {
+            $prefix = max( $spanPrefix, $this->getMaxIpPrefix( $ip ) );
+
+            do {
+                $last = $this->getLastNetworkIp( $ip, $prefix );
+                $continue = ( strcmp( $last->inAddr(), $end ) > 0 );
+                $prefix += (int) $continue;
+            } while ( $continue );
+
+            $networks[] = new Network( $ip . '/' . $prefix );
+
+            $ip = $last->next();
+
+        } while ( strcmp( $last->inAddr(), $end ) < 0 );
+
+
+        return $networks;
+    }
+
+    /**
+     * Stripped down version of `new Network(IP/prefix)->getLastIP()` (omitting 
+     * the validation steps as the input is always valid).
+     * 
+     * @param IpInterface $ip 
+     * @param integer $prefix 
+     * @return IpInterface
+     */
+    private function getLastNetworkIp( IpInterface $ip, $prefix )
+    {
+        $max = 8 * strlen( $ip->inAddr() );
+        $bin = str_pad( str_repeat( '1', $prefix ), $max, '0', STR_PAD_RIGHT );
+
+        $last = $ip->inAddr() | ~(new IP( $bin ))->inAddr();
+
+        return new IP( inet_ntop( $last ) );
+    }
+
+    /**
+     * Get the smallest possible prefix length (netmask) for the given IP.
+     * 
+     * @param IpInterface $ip 
+     * @return integer
+     */
+    private function getMaxIpPrefix( IpInterface $ip )
+    {
+        $bin = $ip->toBin();
+
+        preg_match( '/0*$/', $bin, $match );
+
+        return strlen( $bin ) - strlen( $match[ 0 ] );
+    }
+
+    /**
+     * Get the prefix length of the smallest network that contains all IPs of 
+     * this IP range.
+     * 
+     * @return integer
+     */
+    private function getSpanPrefix()
+    {
+        $xor = inet_ntop( $this->first->inAddr() ^ $this->last->inAddr() );
+        $bin = (new IP( $xor ))->toBin();
+
+        preg_match( '/^0*/', $bin, $match );
+
+        return strlen( $match[ 0 ] );
+    }
+
+    /**
+     * Get the smallest network that contains all IPs of this IP range.
+     * 
+     * @return Network
+     */
+    public function getSpanNetwork()
+    {
+        $cidr = sprintf( '%s/%d', $this->first, $this->getSpanPrefix() );
+
+        return new Network( $cidr );
     }
 }

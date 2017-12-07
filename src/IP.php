@@ -111,6 +111,7 @@ class IP implements IpInterface
      */
     private function bytes()
     {
+        // note: 1-indexed array!
         return unpack( 'C*', $this->in_addr );
     }
 
@@ -191,5 +192,88 @@ class IP implements IpInterface
     public function toHex()
     {
         return bin2hex( $this->in_addr );
+    }
+
+    /**
+     * Convenience function to test if this IPs is equal to the test IP.
+     * 
+     * @param IpInterface $ip 
+     * @return boolean
+     */
+    public function is( IpInterface $ip )
+    {
+        return strcmp( $this->in_addr, $ip->inAddr() ) === 0;
+    }
+
+    /**
+     * Convenience function to test if this IPs is greater than the test IP.
+     * 
+     * @param IpInterface $ip 
+     * @return boolean
+     */
+    public function gt( IpInterface $ip )
+    {
+        return strcmp( $this->in_addr, $ip->inAddr() ) > 0;
+    }
+
+    /**
+      * Convenience function to test if this IPs is less than the test IP.
+     * 
+     * @param IpInterface $ip 
+     * @return boolean
+     */
+    public function lt( IpInterface $ip )
+    {
+        return strcmp( $this->in_addr, $ip->inAddr() ) < 0;
+    }
+
+    /**
+     * Get the following IP address.
+     * 
+     * @return IpInterface
+     */
+    public function next()
+    {
+        $bytes = $this->bytes();
+
+        for ( $i = count( $bytes ); $i > 0; $i-- ) {
+            if ( $bytes[ $i ] === 255 ) {
+                $bytes[ $i ] = 0;
+            }
+            else {
+                $bytes[ $i ]++;
+                break;
+            }
+        }
+
+        array_unshift( $bytes, 'C*' );
+        $binary = call_user_func_array( 'pack', $bytes );
+
+        return new static( inet_ntop( $binary ));
+    }
+
+    /**
+     * Get the preceding IP address.
+     * 
+     * @return IpInterface
+     */
+    public function prev()
+    {
+        $bytes = $this->bytes();
+
+        for ( $i = count( $bytes ); $i > 0; $i-- ) {
+            if ( $bytes[ $i ] === 0 ) {
+                $bytes[ $i ] = 255;
+            }
+            else {
+                $bytes[ $i ]--;
+                break;
+            }
+        }
+
+        array_unshift( $bytes, 'C*' );
+        $binary = call_user_func_array( 'pack', $bytes );
+
+        return new static( inet_ntop( $binary ));
     }
 }

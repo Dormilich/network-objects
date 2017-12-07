@@ -159,7 +159,9 @@ class Network implements NetworkInterface, RangeInterface
      */
     public function getBroadcast()
     {
-        return $this->getLastIP();
+        $last_addr = $this->network->inAddr() | ~$this->netmask->inAddr();
+
+        return new IP( inet_ntop( $last_addr ) );
     }
 
     /**
@@ -204,8 +206,8 @@ class Network implements NetworkInterface, RangeInterface
 
         if ( $this->network->getVersion() === 4 ) {
             if ( $this->count() > 2 ) {
-                $first = substr( $first->toBin(), 0, -1 ) . '1'; // +1
-                $last  = substr( $last->toBin(),  0, -1 ) . '0'; // -1
+                $first = $first->next();
+                $last  = $last->prev();
             }
             else {
                 $first = $last; # /31 & /32
@@ -232,9 +234,7 @@ class Network implements NetworkInterface, RangeInterface
      */
     public function getLastIP()
     {
-        $last_addr = $this->network->inAddr() | ~$this->netmask->inAddr();
-
-        return new IP( inet_ntop( $last_addr ) );
+        return $this->getBroadcast();
     }
 
     /**

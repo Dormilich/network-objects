@@ -1,6 +1,8 @@
 <?php
 
 use Dormilich\Http\IP;
+use Dormilich\Http\Network;
+use Dormilich\Http\NetworkInterface;
 use Dormilich\Http\Range;
 use PHPUnit\Framework\TestCase;
 
@@ -48,7 +50,14 @@ class RangeTest extends TestCase
         $this->assertSame( '192.168.31.193', (string) $range->getLastIP() );
     }
 
-    #public function testCreateRangeFromNetwork()
+    public function testCreateRangeFromNetwork()
+    {
+        $range = new Range( '192.168.49.3/29' );
+
+        $this->assertSame( '8', $range->count(), 'count' );
+        $this->assertSame( '192.168.49.0', (string) $range->getFirstIP() );
+        $this->assertSame( '192.168.49.7', (string) $range->getLastIP() );
+    }
 
     public function testCreateRangeFromStringifiableObject()
     {
@@ -99,7 +108,31 @@ class RangeTest extends TestCase
         $this->assertSame( '40310', $range->count() );
     }
 
-    #public function testgetNetworksForRange()
+    public function testGetNetworksForRange()
+    {
+        $range = new Range( '192.168.31.240 - 192.168.35.193' );
+        $networks = $range->getNetworks();
+        $cidrs = array_map( 'strval', $networks );
+
+        $this->assertCount( 6, $networks );
+        $this->assertContainsOnlyInstancesOf( NetworkInterface::class, $networks );
+
+        $this->assertSame( '192.168.31.240/28', $cidrs[ 0 ] );
+        $this->assertSame( '192.168.32.0/23',   $cidrs[ 1 ] );
+        $this->assertSame( '192.168.34.0/24',   $cidrs[ 2 ] );
+        $this->assertSame( '192.168.35.0/25',   $cidrs[ 3 ] );
+        $this->assertSame( '192.168.35.128/26', $cidrs[ 4 ] );
+        $this->assertSame( '192.168.35.192/31', $cidrs[ 5 ] );
+    }
+
+    public function testGetNetworksForNetworkRange()
+    {
+        $range = new Range( '192.168.49.3/29' );
+        $networks = $range->getNetworks();
+
+        $this->assertCount( 1, $networks );
+        $this->assertSame( '192.168.49.0/29', (string) current( $networks ) );
+    }
 
     /**
      * @dataProvider dataRangeContains
@@ -109,6 +142,13 @@ class RangeTest extends TestCase
         $test = new Range( $range );
 
         $this->assertSame( $result, $test->contains( $find ) );
+    }
+
+    public function testRangeContainsFailsForDifferentIpVersions()
+    {
+        $range = new Range( '192.168.31.240 - 192.168.35.193' );
+
+        $this->assertFalse( $range->contains( '::c0a8:23a1' ) ); // ~ 192.168.35.161
     }
 
     public function dataRangeContains()
@@ -121,12 +161,5 @@ class RangeTest extends TestCase
             [ '192.168.31.240 - 192.168.35.193', '192.168.32.94 - 192.168.46.12', false ],
             [ '192.168.31.240 - 192.168.35.193', '192.168.29.56 - 192.168.34.13', false ],
         ];
-    }
-
-    public function testRangeContainsFailsForDifferentIpVersions()
-    {
-        $range = new Range( '192.168.31.240 - 192.168.35.193' );
-
-        $this->assertFalse( $range->contains( '::c0a8:23a1' ) ); // ~ 192.168.35.161
     }
 }

@@ -64,4 +64,18 @@ class IPv6Test extends TestCase
         $this->assertSame( 32, strlen( $hex ), 'invalid string length' );
         $this->assertSame( $ip->inAddr(), $test->inAddr() );
     }
+
+    public function testNext()
+    {
+        $ip = new IP( '2001:db8:85a3::7347' );
+
+        $this->assertSame( '2001:db8:85a3::7348', (string) $ip->next() );
+    }
+
+    public function testPrev()
+    {
+        $ip = new IP( '2001:db8:85a3::7347' );
+
+        $this->assertSame( '2001:db8:85a3::7346', (string) $ip->prev() );
+    }
 }
