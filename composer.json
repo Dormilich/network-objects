@@ -25,6 +25,9 @@
             "Dormilich\\Http\\": "src/"
         }
     },
+    "provide": {
+        "dormilich/network-implementation": "1.0.0"
+    },
     "scripts": {
         "test": "vendor/bin/phpunit"
     }

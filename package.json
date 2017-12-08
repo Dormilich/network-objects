@@ -1,0 +1,16 @@
+{
+    "name": "dormilich/network-objects",
+    "version": "1.0.0-RC1",
+    "description": "A set of objects that adds some convenience in handling IP and networks.",
+    "homepage": "https://github.com/Dormilich/network-objects",
+    "bugs": "https://github.com/Dormilich/network-objects/issues",
+    "license": "MIT",
+    "author": "Bertold von Dormilich <dormilich@netscape.net>",
+    "repository": "git:dormilich/network-objects",
+    "dependencies": {
+        "dormilich/network-interfaces": "^1.0.0"
+    },
+    "engines": {
+        "php": ">=5.6"
+    }
+}
