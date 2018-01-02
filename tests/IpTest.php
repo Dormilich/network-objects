@@ -31,6 +31,13 @@ class IpTest extends TestCase
         $this->assertSame( '192.168.65.174', (string) $ip );
     }
 
+    public function testInAddr()
+    {
+        $ip = new IP( inet_pton( '192.168.65.174' ) );
+
+        $this->assertSame( '192.168.65.174', (string) $ip );
+    }
+
     /**
      * @expectedException RuntimeException
      * @expectedExceptionMessage Input of type [stdClass] could not be converted into an IP object.

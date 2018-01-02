@@ -190,7 +190,7 @@ class Range implements RangeInterface
 
         $last = $ip->inAddr() | ~(new IP( $mask ))->inAddr();
 
-        return new IP( inet_ntop( $last ) );
+        return new IP( $last );
     }
 
     /**

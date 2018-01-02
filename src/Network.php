@@ -79,7 +79,7 @@ class Network implements NetworkInterface, RangeInterface
 
         $netmask = $this->netmaskFromPrefix( $ip, $prefix );
         $network_addr = $ip->inAddr() & $netmask->inAddr();
-        $network = new IP( inet_ntop( $network_addr ) );
+        $network = new IP( $network_addr );
 
         $this->setNetwork( $network, $netmask );
     }
@@ -161,7 +161,7 @@ class Network implements NetworkInterface, RangeInterface
     {
         $last_addr = $this->network->inAddr() | ~$this->netmask->inAddr();
 
-        return new IP( inet_ntop( $last_addr ) );
+        return new IP( $last_addr );
     }
 
     /**

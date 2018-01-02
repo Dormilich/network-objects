@@ -60,6 +60,10 @@ class IP implements IpInterface
         if ( ctype_digit( $input ) and strlen( $input ) < 40 ) {
             return $this->fromDec( $input );
         }
+        // usually emits an E_WARNING if the input is invalid
+        if ( @inet_ntop( $input ) !== false ) {
+            return $input;
+        }
 
         $value = is_scalar( $input ) ? sprintf( "'%s' ", $input ) : '';
         $type = is_object( $input ) ? get_class( $input ) : gettype( $input );
@@ -249,7 +253,7 @@ class IP implements IpInterface
         array_unshift( $bytes, 'C*' );
         $binary = call_user_func_array( 'pack', $bytes );
 
-        return new static( inet_ntop( $binary ));
+        return new static( $binary );
     }
 
     /**
@@ -274,6 +278,6 @@ class IP implements IpInterface
         array_unshift( $bytes, 'C*' );
         $binary = call_user_func_array( 'pack', $bytes );
 
-        return new static( inet_ntop( $binary ));
+        return new static( $binary );
     }
 }
