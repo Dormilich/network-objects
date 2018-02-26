@@ -2,7 +2,7 @@
 
 namespace Dormilich\Http;
 
-class IP implements IpInterface
+class IP implements IpInterface, \JsonSerializable
 {
     /**
      * @return string The (binary) packed in_addr representation of the IP address.
@@ -115,8 +115,7 @@ class IP implements IpInterface
      */
     private function bytes()
     {
-        // note: 1-indexed array!
-        return unpack( 'C*', $this->in_addr );
+        return array_values( unpack( 'C*', $this->in_addr ) );
     }
 
     /**
@@ -239,8 +238,9 @@ class IP implements IpInterface
     public function next()
     {
         $bytes = $this->bytes();
+        $i = count( $bytes );
 
-        for ( $i = count( $bytes ); $i > 0; $i-- ) {
+        while ( $i-- ) {
             if ( $bytes[ $i ] === 255 ) {
                 $bytes[ $i ] = 0;
             }
@@ -264,8 +264,9 @@ class IP implements IpInterface
     public function prev()
     {
         $bytes = $this->bytes();
+        $i = count( $bytes );
 
-        for ( $i = count( $bytes ); $i > 0; $i-- ) {
+        while ( $i-- ) {
             if ( $bytes[ $i ] === 0 ) {
                 $bytes[ $i ] = 255;
             }
@@ -279,5 +280,14 @@ class IP implements IpInterface
         $binary = call_user_func_array( 'pack', $bytes );
 
         return new static( $binary );
+    }
+
+    /**
+     * @see http://php.net/JsonSerializable
+     * @return string
+     */
+    public function jsonSerialize()
+    {
+        return inet_ntop( $this->in_addr );
     }
 }

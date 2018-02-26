@@ -126,4 +126,11 @@ class IpTest extends TestCase
 
         $this->assertSame( '192.168.8.255', (string) $ip->prev() );
     }
+
+    public function testJson()
+    {
+        $ip = new IP( '192.168.2.1' );
+
+        $this->assertSame( json_encode( '192.168.2.1' ), json_encode( $ip ) );
+    }
 }

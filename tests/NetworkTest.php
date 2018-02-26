@@ -144,4 +144,11 @@ class NetworkTest extends TestCase
         $this->assertSame( '2001:db8:85a3:8d3::', (string) $hosts->getFirstIP() );
         $this->assertSame( '2001:db8:85a3:8d3:ffff:ffff:ffff:ffff', (string) $hosts->getlastIP() );
     }
+
+    public function testJson()
+    {
+        $net = new Network( '192.168.49.3/29' );
+
+        $this->assertJsonStringEqualsJsonString( json_encode( '192.168.49.0/29' ), json_encode( $net ) );
+    }
 }

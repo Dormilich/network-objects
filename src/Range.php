@@ -2,7 +2,7 @@
 
 namespace Dormilich\Http;
 
-class Range implements RangeInterface
+class Range implements RangeInterface, \JsonSerializable
 {
     /**
      * @var IpInterface First IP of the range.
@@ -234,5 +234,14 @@ class Range implements RangeInterface
         $cidr = sprintf( '%s/%d', $this->first, $this->getSpanPrefix() );
 
         return new Network( $cidr );
+    }
+
+    /**
+     * @see http://php.net/JsonSerializable
+     * @return array
+     */
+    public function jsonSerialize()
+    {
+        return get_object_vars( $this );
     }
 }

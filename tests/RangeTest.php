@@ -170,4 +170,13 @@ class RangeTest extends TestCase
             [ '192.168.31.240 - 192.168.35.193', '192.168.29.56 - 192.168.34.13', false ],
         ];
     }
+
+    public function testJson()
+    {
+        $range = new Range( '192.168.31.240 - 192.168.35.193' );
+
+        $expected[ 'first' ] = '192.168.31.240';
+        $expected[ 'last' ] = '192.168.35.193';
+        $this->assertJsonStringEqualsJsonString( json_encode( $expected ), json_encode( $range ) );
+    }
 }

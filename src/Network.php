@@ -2,7 +2,7 @@
 
 namespace Dormilich\Http;
 
-class Network implements NetworkInterface, RangeInterface
+class Network implements NetworkInterface, RangeInterface, \JsonSerializable
 {
     /**
      * @var IpInterface The network address of the network.
@@ -245,5 +245,14 @@ class Network implements NetworkInterface, RangeInterface
     public function getNetworks()
     {
         return [ clone $this ];
+    }
+
+    /**
+     * @see http://php.net/JsonSerializable
+     * @return string
+     */
+    public function jsonSerialize()
+    {
+        return $this->getCIDR();
     }
 }
