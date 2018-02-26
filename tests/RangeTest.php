@@ -1,9 +1,12 @@
 <?php
 
 use Dormilich\Http\IP;
+use Dormilich\Http\IPInterface;
 use Dormilich\Http\Network;
 use Dormilich\Http\NetworkInterface;
 use Dormilich\Http\Range;
+use Dormilich\Http\IpRange;
+use Dormilich\Http\NetRange;
 use PHPUnit\Framework\TestCase;
 
 class RangeTest extends TestCase
@@ -157,6 +160,30 @@ class RangeTest extends TestCase
         $range = new Range( '192.168.31.240 - 192.168.35.193' );
 
         $this->assertFalse( $range->contains( '::c0a8:23a1' ) ); // ~ 192.168.35.161
+    }
+
+    public function testNetRangeIteratesOverNetworks()
+    {
+        $range = new NetRange( '192.168.31.240 - 192.168.35.193' );
+
+        $this->assertEquals( $range->getNetworks(), iterator_to_array( $range ) );
+    }
+
+    public function testIpRangeIteratesOverIps()
+    {
+        $range = new IpRange( '192.168.49.3/29' );
+        $ips = iterator_to_array( $range );
+
+        $this->assertContainsOnlyInstancesOf( IPInterface::class, $ips );
+        $this->assertCount( 8, $ips );
+        $this->assertSame( '192.168.49.0', (string) $ips[ 0 ] );
+        $this->assertSame( '192.168.49.1', (string) $ips[ 1 ] );
+        $this->assertSame( '192.168.49.2', (string) $ips[ 2 ] );
+        $this->assertSame( '192.168.49.3', (string) $ips[ 3 ] );
+        $this->assertSame( '192.168.49.4', (string) $ips[ 4 ] );
+        $this->assertSame( '192.168.49.5', (string) $ips[ 5 ] );
+        $this->assertSame( '192.168.49.6', (string) $ips[ 6 ] );
+        $this->assertSame( '192.168.49.7', (string) $ips[ 7 ] );
     }
 
     public function dataRangeContains()
