@@ -239,9 +239,8 @@ class IP implements IpInterface, \JsonSerializable
     public function next()
     {
         $ip = $this->in_addr;
-        $i = strlen( $ip );
 
-        while ( $i-- ) {
+        for ( $i = strlen( $ip ); $i--; ) {
             $int = ord( substr( $ip, $i, 1 ) );
             if ( 255 === $int ) {
                 $ip[ $i ] = chr( 0 );
@@ -263,9 +262,8 @@ class IP implements IpInterface, \JsonSerializable
     public function prev()
     {
         $ip = $this->in_addr;
-        $i = strlen( $ip );
 
-        while ( $i-- ) {
+        for ( $i = strlen( $ip ); $i--; ) {
             $int = ord( substr( $ip, $i, 1 ) );
             if ( 0 === $int ) {
                 $ip[ $i ] = chr( 255 );
