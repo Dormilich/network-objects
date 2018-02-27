@@ -234,52 +234,48 @@ class IP implements IpInterface, \JsonSerializable
      * Get the following IP address.
      * 
      * @return IpInterface
+     * @author CTphpnwb at dreamincode.net
      */
     public function next()
     {
-        $bytes = $this->bytes();
-        $i = count( $bytes );
+        $ip = $this->in_addr;
+        $i = strlen( $ip );
 
         while ( $i-- ) {
-            if ( $bytes[ $i ] === 255 ) {
-                $bytes[ $i ] = 0;
-            }
-            else {
-                $bytes[ $i ]++;
+            $int = ord( substr( $ip, $i, 1 ) );
+            if ( 255 === $int ) {
+                $ip[ $i ] = chr( 0 );
+            } else {
+                $ip[ $i ] = chr( ++$int );
                 break;
             }
         }
 
-        array_unshift( $bytes, 'C*' );
-        $binary = call_user_func_array( 'pack', $bytes );
-
-        return new static( $binary );
+        return new static( $ip );
     }
 
     /**
      * Get the preceding IP address.
      * 
      * @return IpInterface
+     * @author CTphpnwb at dreamincode.net
      */
     public function prev()
     {
-        $bytes = $this->bytes();
-        $i = count( $bytes );
+        $ip = $this->in_addr;
+        $i = strlen( $ip );
 
         while ( $i-- ) {
-            if ( $bytes[ $i ] === 0 ) {
-                $bytes[ $i ] = 255;
-            }
-            else {
-                $bytes[ $i ]--;
+            $int = ord( substr( $ip, $i, 1 ) );
+            if ( 0 === $int ) {
+                $ip[ $i ] = chr( 255 );
+            } else {
+                $ip[ $i ] = chr( --$int );
                 break;
             }
         }
 
-        array_unshift( $bytes, 'C*' );
-        $binary = call_user_func_array( 'pack', $bytes );
-
-        return new static( $binary );
+        return new static( $ip );
     }
 
     /**
